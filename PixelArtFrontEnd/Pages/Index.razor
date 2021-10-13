@@ -1,0 +1,52 @@
+﻿@page "/"
+
+@using BlazorColorPicker
+@using System;
+
+@for (var i = 0; i < 16; ++i)
+{
+    <div class="btn-group" role="group" aria-label="First group">
+        @for (var j = 0; j < 16; ++j)
+        {
+            <button type="button" @onclick="OpenModal" style="background-color:@GetButtonColor(i, j)" class="btn btn-secondary mr-2 mb-2">&#8203;</button>
+        }
+    </div>
+    <br />
+}
+<ColorPicker Title="My Blazor ColorPicker" IsOpened="isOpened" Closed="ClosedEvent" MyColor="@color">
+</ColorPicker>
+@code {
+
+    bool isOpened = false;
+    string color = "#F1F7E9";
+
+    private string GetButtonColor(int i, int j)
+    {
+        if (i % 2 == 0)
+        {
+            return "#FF00FF";
+        }
+        return "#00FFFF";
+    }
+
+    private int GetMatrixPosition(int i, int j)
+    {
+        if (i % 2 == 0)
+        {
+            return Math.Abs((j + 1) - (16 * (i + 1)));
+        }
+        return (16 * i) + j;
+    }
+
+    void OpenModal()
+    {
+        isOpened = true;
+    }
+
+    void ClosedEvent(string value)
+    {
+        color = value;
+        isOpened = false;
+    }
+
+}
