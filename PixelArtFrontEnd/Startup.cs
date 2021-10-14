@@ -31,8 +31,10 @@ namespace PixelArtFrontEnd
         {
             var neopixelAddress = Configuration.GetValue<string>("NEOPIXELADDRESS");
             var connectionString = Configuration.GetValue<string>("CONNECTIONSTRING");
-            services.AddSingleton<IPixelPatternRepository>(_ => new PixelPatternRepository(connectionString));
-            services.AddScoped<INeopixelService>(_ => new NeopixelService(neopixelAddress));
+            var patternRepository = new PixelPatternRepository(connectionString);
+            services.AddSingleton<IPixelPatternRepository>(_ => patternRepository);
+            services.AddSingleton<IPatternService>(_ => new PatternService(patternRepository));
+            services.AddScoped<INeopixelControllerService>(_ => new NeopixelControllerService(neopixelAddress));
             services.AddRazorPages();
             services.AddServerSideBlazor();
         }

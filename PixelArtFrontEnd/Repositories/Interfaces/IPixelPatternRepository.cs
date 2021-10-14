@@ -9,7 +9,7 @@ namespace PixelArtFrontEnd.Repositories.Interfaces
     public interface IPixelPatternRepository
     {
         Task<IEnumerable<AvailablePatterns>> GetAvailablePatternsAsync();
-        Task AddPatternDetails(PixelPatternDetails patternDetails);
+        Task AddPatternDetails(PixelPatternDetailsRow patternDetails);
         Task<IEnumerable<PixelPatternDetails>> GetPatternDetailsAsync(Guid patternUUID);
     }
 }

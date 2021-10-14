@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace PixelArtFrontEnd.Services
 {
-    public class NeopixelService: INeopixelService
+    public class NeopixelControllerService: INeopixelControllerService
     {
         private readonly string neopixelAddress;
         private readonly HttpClient httpClient = new HttpClient();
         private readonly JsonSerializerOptions serializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-        public NeopixelService(string neopixelAddress)
+        public NeopixelControllerService(string neopixelAddress)
         {
             this.neopixelAddress = neopixelAddress;
         }

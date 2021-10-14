@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PixelArtFrontEnd.Services.Interfaces
 {
-    public interface INeopixelService
+    public interface INeopixelControllerService
     {
         Task SendNeopixelUpdate(SortedDictionary<int, string> colorDict);
     }
