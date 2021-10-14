@@ -12,7 +12,7 @@
     <option>--select--</option>
     @foreach (var item in availablePatterns)
     {
-        <option onchange="@GetPatternDetailsByUUIDAsync()" value="@item.PatternUUID">@item.PatternName</option>
+        <option @onchange="GetPatternDetailsByUUIDAsync" value="@item.PatternUUID">@item.PatternName</option>
     }
 </select>
 <br/>
@@ -26,6 +26,7 @@
     </div>
     <br />
 }
+<input type="button" @onclick="@StartPatternAsync" value="Start Pattern"/>
 <ColorPicker Title="My Blazor ColorPicker" IsOpened="isOpened" Closed="ClosedEvent" MyColor="@color">
 </ColorPicker>
 @code {
@@ -49,7 +50,11 @@
     {
         var patternDetails = await patternRepository.GetPatternDetailsAsync(selectedPattern.PatternUUID);
         colorStore = MapStringToDictionary(patternDetails.Where(i => i.PatternSequenceNumber == 1).First().PatternDetails);
-        StateHasChanged();
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+    private async Task StartPatternAsync()
+    {
         await neopixelService.SendNeopixelUpdate(colorStore);
     }
 
