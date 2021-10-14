@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using PixelArtFrontEnd.Repositories;
+using PixelArtFrontEnd.Repositories.Interfaces;
+using PixelArtFrontEnd.Services;
+using PixelArtFrontEnd.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +29,10 @@ namespace PixelArtFrontEnd
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            var neopixelAddress = Configuration.GetValue<string>("NEOPIXELADDRESS");
+            var connectionString = Configuration.GetValue<string>("CONNECTIONSTRING");
+            services.AddSingleton<IPixelPatternRepository>(_ => new PixelPatternRepository(connectionString));
+            services.AddScoped<INeopixelService>(_ => new NeopixelService(neopixelAddress));
             services.AddRazorPages();
             services.AddServerSideBlazor();
         }

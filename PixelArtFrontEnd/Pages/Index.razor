@@ -1,8 +1,21 @@
 ﻿@page "/"
 
-@using BlazorColorPicker
-@using System;
+@inject PixelArtFrontEnd.Services.Interfaces.INeopixelService neopixelService
+@inject PixelArtFrontEnd.Repositories.Interfaces.IPixelPatternRepository patternRepository
 
+@using BlazorColorPicker
+@using PixelArtFrontEnd.Models
+@using System;
+@using System.Text.Json
+
+<select class="form-control selectpicker w-25" @bind="selectedPattern.PatternUUID">
+    <option>--select--</option>
+    @foreach (var item in availablePatterns)
+    {
+        <option onchange="@GetPatternDetailsByUUIDAsync()" value="@item.PatternUUID">@item.PatternName</option>
+    }
+</select>
+<br/>
 @for (var i = 0; i < 16; ++i)
 {
     <div class="btn-group" role="group" aria-label="First group">
@@ -19,14 +32,44 @@
 
     bool isOpened = false;
     string color = "#F1F7E9";
+    SortedDictionary<int, string> colorStore = new SortedDictionary<int, string>();
+    JsonSerializerOptions serializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+    IEnumerable<AvailablePatterns> availablePatterns = new List<AvailablePatterns>();
+    AvailablePatterns selectedPattern = new AvailablePatterns();
+
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        availablePatterns = await patternRepository.GetAvailablePatternsAsync();
+    }
+
+    private async Task GetPatternDetailsByUUIDAsync()
+    {
+        var patternDetails = await patternRepository.GetPatternDetailsAsync(selectedPattern.PatternUUID);
+        colorStore = MapStringToDictionary(patternDetails.Where(i => i.PatternSequenceNumber == 1).First().PatternDetails);
+        StateHasChanged();
+        await neopixelService.SendNeopixelUpdate(colorStore);
+    }
+
+    private string MapDictionaryToString(SortedDictionary<int, string> colorDict)
+    {
+        var serialized = JsonSerializer.Serialize<SortedDictionary<int, string>>(colorDict);
+        return serialized;
+    }
+
+    private SortedDictionary<int, string> MapStringToDictionary(string serializedDict)
+    {
+        var deserialized = JsonSerializer.Deserialize<SortedDictionary<int, string>>(serializedDict, serializerOptions);
+        return deserialized;
+    }
 
     private string GetButtonColor(int i, int j)
     {
-        if (i % 2 == 0)
-        {
-            return "#FF00FF";
-        }
-        return "#00FFFF";
+        var trueIndex = GetMatrixPosition(i, j);
+        colorStore.TryGetValue(trueIndex, out var hexColor);
+        return hexColor;
     }
 
     private int GetMatrixPosition(int i, int j)
