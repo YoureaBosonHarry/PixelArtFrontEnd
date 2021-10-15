@@ -7,6 +7,7 @@
 @using PixelArtFrontEnd.Models
 @using System;
 @using System.Text.Json
+@using System.Threading;
 
 <select class="form-control selectpicker w-25" @bind="selectedPattern.PatternUUID" @bind:event="oninput" @onchange="GetPatternDetailsByUUIDAsync">
     <option>--select--</option>
@@ -27,73 +28,71 @@
     <br />
 }
 <input type="button" @onclick="@StartPatternAsync" value="Start Pattern"/>
+<input type="button" @onclick="@StopSending" value="Stop Sending" />
 <ColorPicker Title="My Blazor ColorPicker" IsOpened="isOpened" Closed="ClosedEvent" MyColor="@color">
 </ColorPicker>
 @code {
 
     bool isOpened = false;
     string color = "#F1F7E9";
-    SortedDictionary<int, string> currentPatternSequenceDetails = new SortedDictionary<int, string>();
+    PixelPatternDetails currentPatternSequenceDetails = new PixelPatternDetails();
     IEnumerable<PixelPatternDetails> patternDetails = new List<PixelPatternDetails>();
     JsonSerializerOptions serializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
     IEnumerable<AvailablePatterns> availablePatterns = new List<AvailablePatterns>();
     AvailablePatterns selectedPattern = new AvailablePatterns();
+    bool isSending = false;
+    System.Threading.Thread sender;
 
 
-    private async Task WriteSkeletonPattern()
-    {
-        var skeleOneDict = new SortedDictionary<int, string>();
-        var skeleGuid = Guid.NewGuid();
-        var poseOne = new List<int>() { 21, 22, 23, 24, 25, 37, 38, 39, 40, 41, 42, 43, 52, 54, 56, 57, 58, 69, 70, 71, 73, 75, 84, 85, 86, 87, 88, 89, 90, 102, 104, 106, 82, 109, 114, 140, 132, 156, 163, 188, 134, 135, 136, 137, 138, 151, 166, 167, 168, 169, 170, 183, 199, 200, 201, 213, 234, 245, 217, 230, 249 };
-        foreach (var i in poseOne)
-        {
-            skeleOneDict.Add(i, "#64645a");
-        }
-        for (int i = 0; i < 256; ++i)
-        {
-            if (!poseOne.Contains(i))
-            {
-                skeleOneDict.Add(i, "#000000");
-            }
-        }
-        var skeleOneString = JsonSerializer.Serialize<SortedDictionary<int, string>>(skeleOneDict, serializerOptions);
-        var poseOneObj = new PixelPatternDetailsRow { PatternUUID = Guid.Parse("a9bcf38b-a67a-423b-8e65-3917137cbd92"), PatternName = "Skeleton", PatternSequenceNumber = 1, PatternDetails = skeleOneString };
-
-        var skeleTwoDict = new SortedDictionary<int, string>();
-        var poseTwo = new List<int>() { 21, 22, 23, 24, 25, 37, 38, 39, 40, 41, 42, 43, 52, 53, 54, 56, 58, 69, 71, 73, 74, 75, 84, 85, 86, 87, 88, 89, 90, 102, 104, 106, 140, 146, 173, 178, 92, 99, 124, 132, 134, 135, 136, 137, 138, 151, 166, 167, 168, 169, 170, 183, 199, 200, 201, 213, 234, 245, 217, 230, 249 };
-        foreach (var i in poseTwo)
-        {
-            skeleTwoDict.Add(i, "#64645a");
-        }
-        for (int i = 0; i < 256; ++i)
-        {
-            if (!poseTwo.Contains(i))
-            {
-                skeleTwoDict.Add(i, "#000000");
-            }
-        }
-        var skeleTwoString = JsonSerializer.Serialize<SortedDictionary<int, string>>(skeleTwoDict, serializerOptions);
-        var poseTwoObj = new PixelPatternDetailsRow { PatternUUID = Guid.Parse("a9bcf38b-a67a-423b-8e65-3917137cbd92"), PatternName = "Skeleton", PatternSequenceNumber = 2, PatternDetails = skeleTwoString };
-        await patternService.AddPatternDetailsByUUIDAsync(poseOneObj);
-        await patternService.AddPatternDetailsByUUIDAsync(poseTwoObj);
-    }
 
     protected override async Task OnInitializedAsync()
     {
         availablePatterns = await patternService.GetAvailablePatternsAsync();
-        
     }
 
     private async Task GetPatternDetailsByUUIDAsync()
     {
         patternDetails = await patternService.GetPatternDetailsByUUIDAsync(selectedPattern.PatternUUID);
-        currentPatternSequenceDetails = patternDetails.First().PatternDetails;
+        currentPatternSequenceDetails = patternDetails.Where(i => i.PatternSequenceNumber == 1).Single();
         await InvokeAsync(() => StateHasChanged());
     }
 
-    private async Task StartPatternAsync()
+    private async Task<bool> StartPatternAsync()
     {
-        await neopixelService.SendNeopixelUpdate(currentPatternSequenceDetails);
+        if (isSending)
+        {
+            return false;
+        }
+        isSending = true;
+        sender = new System.Threading.Thread(SendData);
+        sender.IsBackground = true;
+        sender.Start();
+        return true;
+    }
+
+    private void StopSending()
+    {
+        isSending = false;
+        if (sender.Join(200) == false)
+        {
+            sender.Join();
+        }
+        sender = null;
+    }
+
+    private void SendData()
+    {
+        while (isSending)
+        {
+            foreach (var i in patternDetails.Select(i => i.PatternSequenceNumber))
+            {
+                neopixelService.SendNeopixelUpdate(currentPatternSequenceDetails.PatternDetails).Wait();
+                currentPatternSequenceDetails = patternDetails.Where(j => j.PatternSequenceNumber == i).Single();
+                Thread.Sleep(1000);
+            }
+
+
+        }
     }
 
     private string MapDictionaryToString(SortedDictionary<int, string> colorDict)
@@ -107,7 +106,7 @@
     private string GetButtonColor(int i, int j)
     {
         var trueIndex = GetMatrixPosition(i, j);
-        currentPatternSequenceDetails.TryGetValue(trueIndex, out var hexColor);
+        currentPatternSequenceDetails.PatternDetails.TryGetValue(trueIndex, out var hexColor);
         return hexColor;
     }
 

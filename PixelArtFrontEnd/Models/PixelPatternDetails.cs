@@ -11,5 +11,10 @@ namespace PixelArtFrontEnd.Models
         public string PatternName { get; set; }
         public int PatternSequenceNumber { get; set; }
         public SortedDictionary<int, string> PatternDetails { get; set; }
+
+        public PixelPatternDetails()
+        {
+            PatternDetails = new SortedDictionary<int, string>() { };
+        }
     }
 }
