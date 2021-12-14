@@ -1,9 +1,9 @@
 ﻿@page "/"
 
+@inject PixelArtFrontEnd.Services.Interfaces.IFrontEndHelperService frontEndHelper
 @inject PixelArtFrontEnd.Services.Interfaces.INeopixelControllerService neopixelService
 @inject PixelArtFrontEnd.Services.Interfaces.IPatternService patternService
 
-@using BlazorColorPicker
 @using PixelArtFrontEnd.Models
 @using System;
 @using System.Text.Json
@@ -22,22 +22,18 @@
     <div class="btn-group" role="group" aria-label="First group">
         @for (var j = 0; j < 16; ++j)
         {
-            <button type="button" @onclick="OpenModal" style="background-color:@GetButtonColor(i, j)" class="btn btn-secondary mr-2 mb-2">&#8203;</button>
+            <button type="button" style="background-color:@frontEndHelper.GetButtonColor(currentPatternSequenceDetails, i, j)" class="btn btn-secondary mr-2 mb-2">&#8203;</button>
         }
     </div>
     <br />
 }
-<input type="button" @onclick="@StartPatternAsync" value="Start Pattern"/>
+<input type="button" @onclick="@StartPattern" value="Start Pattern"/>
 <input type="button" @onclick="@StopSending" value="Stop Sending" />
-<ColorPicker Title="My Blazor ColorPicker" IsOpened="isOpened" Closed="ClosedEvent" MyColor="@color">
-</ColorPicker>
 @code {
 
-    bool isOpened = false;
-    string color = "#F1F7E9";
+   
     PixelPatternDetails currentPatternSequenceDetails = new PixelPatternDetails();
     IEnumerable<PixelPatternDetails> patternDetails = new List<PixelPatternDetails>();
-    JsonSerializerOptions serializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
     IEnumerable<AvailablePatterns> availablePatterns = new List<AvailablePatterns>();
     AvailablePatterns selectedPattern = new AvailablePatterns();
     bool isSending = false;
@@ -57,7 +53,7 @@
         await InvokeAsync(() => StateHasChanged());
     }
 
-    private async Task<bool> StartPatternAsync()
+    private bool StartPattern()
     {
         if (isSending)
         {
@@ -90,44 +86,6 @@
                 currentPatternSequenceDetails = patternDetails.Where(j => j.PatternSequenceNumber == i).Single();
                 Thread.Sleep(1000);
             }
-
-
         }
-    }
-
-    private string MapDictionaryToString(SortedDictionary<int, string> colorDict)
-    {
-        var serialized = JsonSerializer.Serialize<SortedDictionary<int, string>>(colorDict);
-        return serialized;
-    }
-
-
-
-    private string GetButtonColor(int i, int j)
-    {
-        var trueIndex = GetMatrixPosition(i, j);
-        currentPatternSequenceDetails.PatternDetails.TryGetValue(trueIndex, out var hexColor);
-        return hexColor;
-    }
-
-    private int GetMatrixPosition(int i, int j)
-    {
-        if (i % 2 == 0)
-        {
-            return Math.Abs((j + 1) - (16 * (i + 1)));
-        }
-        return (16 * i) + j;
-    }
-
-    void OpenModal()
-    {
-        isOpened = true;
-    }
-
-    void ClosedEvent(string value)
-    {
-        color = value;
-        isOpened = false;
-    }
-
+    }  
 }

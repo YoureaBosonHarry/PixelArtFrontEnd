@@ -1,0 +1,36 @@
+﻿@page "/create"
+
+@using BlazorColorPicker
+
+<h3>CreatePattern</h3>
+
+@for (var i = 0; i < 16; ++i)
+{
+    <div class="btn-group" role="group" aria-label="First group">
+        @for (var j = 0; j < 16; ++j)
+        {
+            <button type="button" style="background-color:@GetButtonColor(i, j)" class="btn btn-secondary mr-2 mb-2">&#8203;</button>
+        }
+    </div>
+    <br />
+}
+
+<ColorPicker Title="My Blazor ColorPicker" IsOpened="isOpened" Closed="ClosedEvent" MyColor="@color">
+</ColorPicker>
+
+@code {
+
+    bool isOpened = false;
+    string color = "#F1F7E9";
+
+    private void OpenModal()
+    {
+        isOpened = true;
+    }
+
+    private void ClosedEvent(string value)
+    {
+        color = value;
+        isOpened = false;
+    }
+}

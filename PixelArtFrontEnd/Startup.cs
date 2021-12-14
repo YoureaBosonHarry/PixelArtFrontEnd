@@ -34,6 +34,7 @@ namespace PixelArtFrontEnd
             var patternRepository = new PixelPatternRepository(connectionString);
             services.AddSingleton<IPixelPatternRepository>(_ => patternRepository);
             services.AddSingleton<IPatternService>(_ => new PatternService(patternRepository));
+            services.AddScoped<IFrontEndHelperService, FrontEndHelperService>();
             services.AddScoped<INeopixelControllerService>(_ => new NeopixelControllerService(neopixelAddress));
             services.AddRazorPages();
             services.AddServerSideBlazor();
