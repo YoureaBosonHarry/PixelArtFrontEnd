@@ -13,8 +13,7 @@
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "NEOPIXELADDRESS": "http://192.168.50.93",
-        "CONNECTIONSTRING": "Data Source=192.168.50.100;Database=PixelPatternDatabase;User Id=sa;Password=Jpeep123"
+        "NEOPIXELADDRESS": "http://192.168.50.93"
       }
     },
     "PixelArtFrontEnd": {

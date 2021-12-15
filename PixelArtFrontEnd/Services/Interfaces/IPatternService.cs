@@ -8,8 +8,7 @@ namespace PixelArtFrontEnd.Services.Interfaces
 {
     public interface IPatternService
     {
-        Task<IEnumerable<AvailablePatterns>> GetAvailablePatternsAsync();
+        Task<IEnumerable<PatternList>> GetPatternListAsync();
         Task<IEnumerable<PixelPatternDetails>> GetPatternDetailsByUUIDAsync(Guid patternUUID);
-        Task AddPatternDetailsByUUIDAsync(PixelPatternDetailsRow patternDetailsRow);
     }
 }
