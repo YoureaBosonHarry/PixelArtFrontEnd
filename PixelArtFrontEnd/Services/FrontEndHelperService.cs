@@ -17,10 +17,10 @@ namespace PixelArtFrontEnd.Services
 
         }
 
-        public string GetButtonColor(PixelPatternDetails patternDetails, int i, int j)
+        public string GetButtonColor(PatternDetails patternDetails, int i, int j)
         {
             var trueIndex = GetMatrixPosition(i, j);
-            patternDetails.PatternDetails.TryGetValue(trueIndex, out var hexColor);
+            patternDetails.SequenceDictionary.TryGetValue(trueIndex, out var hexColor);
             return hexColor;
         }
 

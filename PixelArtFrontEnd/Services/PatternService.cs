@@ -26,7 +26,7 @@ namespace PixelArtFrontEnd.Services
 
         public async Task<IEnumerable<PatternList>> GetPatternListAsync()
         {
-            var response = await httpClient.GetAsync("/Neopixels/GetPatterns");
+            var response = await httpClient.GetAsync("/Neopixels/GetPatternList");
             if (response.IsSuccessStatusCode)
             {
                 var serializedPatterns = await response.Content.ReadAsStreamAsync();
@@ -36,18 +36,20 @@ namespace PixelArtFrontEnd.Services
             return Enumerable.Empty<PatternList>();
         }
 
-        public async Task<IEnumerable<PixelPatternDetails>> GetPatternDetailsByUUIDAsync(Guid patternUUID)
+        public async Task<IEnumerable<PatternDetails>> GetPatternDetailsByUUIDAsync(Guid patternUUID)
         {
-            var unformattedURL = $"/Neopixels/GetPatternDetails?patternUUID={patternUUID}";
-            var encodedURL = HttpUtility.UrlEncode(unformattedURL);
+            var queryArgs = new Dictionary<string, string>() { { "patternUUID", patternUUID.ToString()} };
+            var encodedContent = new FormUrlEncodedContent(queryArgs);
+            var encodedURL = $"/Neopixels/GetPatternDetails?{await encodedContent.ReadAsStringAsync()}";
+            //var encodedURL = HttpUtility.UrlEncode(unformattedURL);
             var response = await httpClient.GetAsync(encodedURL);
             if (response.IsSuccessStatusCode)
             {
                 var serializedPatternDetails = await response.Content.ReadAsStreamAsync();
-                var patternDetails = await JsonSerializer.DeserializeAsync<IEnumerable<PixelPatternDetails>>(serializedPatternDetails, serializerOptions);
+                var patternDetails = await JsonSerializer.DeserializeAsync<IEnumerable<PatternDetails>>(serializedPatternDetails, serializerOptions);
                 return patternDetails;
             }
-            return Enumerable.Empty<PixelPatternDetails>();
+            return Enumerable.Empty<PatternDetails>();
         }
     }
 }
