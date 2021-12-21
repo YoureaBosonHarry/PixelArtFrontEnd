@@ -1,23 +1,25 @@
 ﻿using Microsoft.AspNetCore.Components;
 using PixelArtFrontEnd.Models;
 using PixelArtFrontEnd.Services.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PixelArtFrontEnd.Components
+namespace PixelArtFrontEnd.Pages
 {
-    public class IndexComponent : ComponentBase
+    public partial class Index : ComponentBase
     {
-        protected readonly IPatternService patternService;
+        [Inject]
+        protected IPatternService patternService { get; set; }
         protected PatternDetails currentPatternSequenceDetails;
         protected IEnumerable<PatternDetails> patternDetails;
         protected IEnumerable<PatternList> availablePatterns = new List<PatternList>();
         protected PatternList selectedPattern = new PatternList();
 
-        public IndexComponent(IPatternService patternService)
+        public Index()
         {
-            this.patternService = patternService;
+            
         }
 
         protected override async Task OnInitializedAsync()
@@ -31,14 +33,20 @@ namespace PixelArtFrontEnd.Components
             currentPatternSequenceDetails = patternDetails.First();
         }
 
-        protected void StartPattern()
+        protected void OnSequenceChange(int sequenceNumber)
         {
-
+            currentPatternSequenceDetails = patternDetails.Where(i => i.SequenceNumber == sequenceNumber).FirstOrDefault();
         }
 
-        protected void StopSending()
+        protected async Task StartPattern()
         {
+            var patternRequest = new PatternChangeRequest() { PatternUUID = currentPatternSequenceDetails.PatternUUID };
+            await patternService.ChangePatternAsync(patternRequest);
+        }
 
+        protected async void StopPattern()
+        {
+            await patternService.ClearPattern();
         }
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PixelArtFrontEnd.Components;
+using PixelArtFrontEnd.Pages;
 using PixelArtFrontEnd.Services;
 using PixelArtFrontEnd.Services.Interfaces;
 using System;
@@ -29,9 +29,10 @@ namespace PixelArtFrontEnd
         public void ConfigureServices(IServiceCollection services)
         {
             var neopixelBackendAddress = Configuration.GetValue<string>("NEOPIXELADDRESS");
-            services.AddSingleton<IPatternService>(_ => new PatternService(neopixelBackendAddress));
+            var patternService = new PatternService(neopixelBackendAddress);
+            services.AddScoped<IPatternService>(_ => patternService);
             services.AddScoped<IFrontEndHelperService, FrontEndHelperService>();
-            services.AddScoped<IndexComponent>();
+            //services.AddScoped(_ => new IndexComponent(patternService));
             services.AddRazorPages();
             services.AddServerSideBlazor();
         }

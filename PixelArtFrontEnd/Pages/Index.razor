@@ -1,7 +1,5 @@
 ﻿@page "/"
 
-@inherits PixelArtFrontEnd.Components.IndexComponent
-
 @inject PixelArtFrontEnd.Services.Interfaces.IFrontEndHelperService frontEndHelper
 
 @using PixelArtFrontEnd.Models
@@ -15,27 +13,30 @@
             <option>--select--</option>
             @foreach (var item in availablePatterns)
             {
-                <option value="@item.PatternUUID">@item.PatternName</option>
+                <option value="@item.PatternUUID">@item.PatternName</option>    
             }
         </select>
-        @if (selectedPattern.PatternUUID != Guid.Empty)
+        @if (selectedPattern.PatternUUID != Guid.Empty && currentPatternSequenceDetails != null)
         {
-            <form>
+            <EditForm Model="currentPatternSequenceDetails">
                 <div class="form-group">
                     <label for="patternName">Pattern Name</label>
-                    <input type="text" class="form-control" id="patternName" @bind-value="selectedPattern.PatternName" aria-describedby="patternHelp" placeholder="Enter Name">
+                    <InputText type="text" class="form-control" id="patternName" @bind-Value="currentPatternSequenceDetails.PatternName" aria-describedby="patternHelp" placeholder="Enter Name"/>
                     <small id="patternHelp" class="form-text text-muted">Enter pattern name to create/update.</small>
                 </div>
                 <div class="form-group">
                     <label for="sequenceSelect">Select Sequence Number</label>
-                    <select class="form-control" id="sequenceSelect" @bind="currentPatternSequenceDetails.SequenceNumber">
-                        @foreach (var item in patternDetails)
+                    <InputSelect id="sequenceSelect" ValueExpression="@(()=>currentPatternSequenceDetails.SequenceNumber)" Value="@currentPatternSequenceDetails.SequenceNumber" ValueChanged="@((int sequenceValue) => OnSequenceChange(sequenceValue ))">
+                        <option>--select--</option>
+                        @for (int count = 1; count <= patternDetails.Count(); ++count)
                         {
-                            <option value="@item.SequenceNumber">@item.SequenceNumber</option>
+                            <option value="@count">@count</option>
                         }
-                    </select>
+                    </InputSelect>
                 </div>
-            </form>
+            </EditForm>
+            <button class="btn-primary" @onclick="StartPattern">Play</button>
+            <button class="btn-danger" @onclick="StopPattern">Stop</button>
         }
     </div>
     <div class="col">

@@ -29,8 +29,8 @@ namespace PixelArtFrontEnd.Services
             var response = await httpClient.GetAsync("/Neopixels/GetPatternList");
             if (response.IsSuccessStatusCode)
             {
-                var serializedPatterns = await response.Content.ReadAsStreamAsync();
-                var patterns = await JsonSerializer.DeserializeAsync<IEnumerable<PatternList>>(serializedPatterns, serializerOptions);
+                var serializedContent = await response.Content.ReadAsStreamAsync();
+                var patterns = await JsonSerializer.DeserializeAsync<IEnumerable<PatternList>>(serializedContent, serializerOptions);
                 return patterns;
             }
             return Enumerable.Empty<PatternList>();
@@ -50,6 +50,26 @@ namespace PixelArtFrontEnd.Services
                 return patternDetails;
             }
             return Enumerable.Empty<PatternDetails>();
+        }
+
+        public async Task ChangePatternAsync(PatternChangeRequest patternChangeRequest)
+        {
+            var serializedContent = JsonSerializer.Serialize(patternChangeRequest, serializerOptions);
+            var stringContent = new StringContent(serializedContent, Encoding.Default, mediaType: "application/json");
+            var response = await httpClient.PostAsync("/Neopixels/ChangePattern", stringContent);
+            if (response.IsSuccessStatusCode)
+            {
+                ;
+            }
+        }
+
+        public async Task ClearPattern()
+        {
+            var response = await httpClient.PostAsync("/Neopixels/ClearPixels", new StringContent(String.Empty));
+            if (response.IsSuccessStatusCode)
+            {
+                ;
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ namespace PixelArtFrontEnd.Models
 {
     public class PatternList
     {
-        public Guid PatternUUID { get; set; }
+        public Guid PatternUUID { get; set; } = Guid.Empty;
         public string PatternName { get; set; }
         public DateTime DateAdded { get; set; }
     }
