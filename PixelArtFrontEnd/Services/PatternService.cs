@@ -52,6 +52,17 @@ namespace PixelArtFrontEnd.Services
             return Enumerable.Empty<PatternDetails>();
         }
 
+        public async Task UpdatePatternDetailsAsync(IEnumerable<PatternDetails> patternDetails)
+        {
+            var serializedContent = JsonSerializer.Serialize(patternDetails, serializerOptions);
+            var stringContent = new StringContent(serializedContent, Encoding.Default, mediaType: "application/json");
+            var response = await httpClient.PutAsync("/Neopixels/UpdatePatternDetails", stringContent);
+            if (response.IsSuccessStatusCode)
+            {
+                ;
+            }
+        }
+
         public async Task ChangePatternAsync(PatternChangeRequest patternChangeRequest)
         {
             var serializedContent = JsonSerializer.Serialize(patternChangeRequest, serializerOptions);

@@ -2,11 +2,45 @@
 
 @inject PixelArtFrontEnd.Services.Interfaces.IFrontEndHelperService frontEndHelper
 
+@using BlazorColorPicker
 @using PixelArtFrontEnd.Models
 @using System;
 @using System.Linq
 @using System.Text.Json
 @using System.Threading;
+
+
+@if (showPatternModal)  
+    {  
+      
+    <div class="modal fade show d-block" id="exampleModal" tabindex="-1" role="dialog">  
+        <div class="modal-dialog" role="document">  
+            <div class="modal-content">  
+                <div class="modal-header">  
+                    <h5 class="modal-title" id="titleLabel">Add Pattern</h5>  
+                    <button type="button" class="close" @onclick="@CloseModal" data-dismiss="modal" aria-label="Close">  
+                        <span aria-hidden="true">×</span>  
+                    </button>  
+                </div>  
+                <div class="modal-body">  
+                    <EditForm Model="@newPattern" OnValidSubmit="@HandleValidCreate">  
+                        <DataAnnotationsValidator />  
+                        <ValidationSummary />  
+                        <div class="form-group">  
+                            <label for="patternName">Pattern Name: </label>  
+                            <InputText id="patternName" class="form-control" @bind-Value="@newPattern.PatternName" placeholder="Enter pattern name"></InputText>  
+                            <ValidationMessage For="@(() => newPattern.PatternName)" />  
+                        </div>  
+                        <button type="submit" class="btn btn-primary">Create Pattern</button>  
+                        <a class="btn btn-outline-primary" @onclick="@CloseModal">Close</a>  
+                    </EditForm>  
+                </div>  
+            </div>  
+        </div>  
+    </div>  
+}  
+
+
 <div class="row g-3">
     <div class="col">
         <select class="form-control selectpicker w-auto" @bind="selectedPattern.PatternUUID" @bind:event="oninput" @onchange="GetPatternDetailsByUUIDAsync">
@@ -16,6 +50,7 @@
                 <option value="@item.PatternUUID">@item.PatternName</option>    
             }
         </select>
+        <button class="btn-btn-primary" @onclick="OpenModal">Add New</button>
         @if (selectedPattern.PatternUUID != Guid.Empty && currentPatternSequenceDetails != null)
         {
             <EditForm Model="currentPatternSequenceDetails">
@@ -37,22 +72,26 @@
             </EditForm>
             <button class="btn-primary" @onclick="StartPattern">Play</button>
             <button class="btn-danger" @onclick="StopPattern">Stop</button>
+            <br/>
+            <button class="btn-btn-primary" @onclick="UpdatePattern">Update</button>
         }
     </div>
     <div class="col">
-        @for (var i = 0; i < 16; ++i)
+        @foreach (int i in new List<int>() {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 })
         {
             <div class="btn-group" role="group" aria-label="First group">
-                @for (var j = 0; j < 16; ++j)
+                @foreach (int j in new List<int>() {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 })
                 {
                     if (currentPatternSequenceDetails != null)
                     {
-                        <button type="button" style="background-color:@frontEndHelper.GetButtonColor(currentPatternSequenceDetails, i, j)" class="btn btn-secondary mr-2 mb-2">&#8203;</button>
+                        var localIndex = GetMatrixPosition(i, j);
+                        <button @onclick="((args) => OpenModal(i, j))" style="background-color:@copyPatternSequence[localIndex]" class="btn btn-secondary mr-2 mb-2">&#8203;</button>
                     }
                 }
             </div>
             <br />
         }
     </div>
+    <ColorPicker Title="Pixel Color Picker" IsOpened="isOpened" Closed="ClosedEvent" MyColor="@color"></ColorPicker>
 </div>
 

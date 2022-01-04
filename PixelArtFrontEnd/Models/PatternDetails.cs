@@ -13,6 +13,7 @@ namespace PixelArtFrontEnd.Models
         public int SequenceNumber { get; set; }
         public string SequenceDescription { get; set; }
         public string SequenceMetadata { get; set; }
-        public Dictionary<int, string> SequenceDictionary => JsonSerializer.Deserialize<Dictionary<int, string>>(SequenceDescription);
+        private Dictionary<int, string> _value;
+        public Dictionary<int, string> SequenceDictionary { get => JsonSerializer.Deserialize<Dictionary<int, string>>(SequenceDescription); set => _value = value; }
     }
 }
