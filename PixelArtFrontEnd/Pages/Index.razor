@@ -10,14 +10,13 @@
 @using System.Threading;
 
 
-@if (showPatternModal)  
-    {  
-      
-    <div class="modal fade show d-block" id="exampleModal" tabindex="-1" role="dialog">  
+@if (showPatternModal)
+{  
+    <div class="modal fade show d-block" id="newPatternModal" tabindex="-1" role="dialog">  
         <div class="modal-dialog" role="document">  
             <div class="modal-content">  
                 <div class="modal-header">  
-                    <h5 class="modal-title" id="titleLabel">Add Pattern</h5>  
+                    <h5 class="modal-title" id="newPatternTitleLabel">Add Pattern</h5>  
                     <button type="button" class="close" @onclick="@CloseModal" data-dismiss="modal" aria-label="Close">  
                         <span aria-hidden="true">×</span>  
                     </button>  
@@ -28,8 +27,7 @@
                         <ValidationSummary />  
                         <div class="form-group">  
                             <label for="patternName">Pattern Name: </label>  
-                            <InputText id="patternName" class="form-control" @bind-Value="@newPattern.PatternName" placeholder="Enter pattern name"></InputText>  
-                            <ValidationMessage For="@(() => newPattern.PatternName)" />  
+                            <InputText id="patternName" class="form-control" @bind-Value="@newPattern.PatternName" placeholder="Enter pattern name"></InputText>    
                         </div>  
                         <button type="submit" class="btn btn-primary">Create Pattern</button>  
                         <a class="btn btn-outline-primary" @onclick="@CloseModal">Close</a>  
@@ -50,7 +48,7 @@
                 <option value="@item.PatternUUID">@item.PatternName</option>    
             }
         </select>
-        <button class="btn-btn-primary" @onclick="OpenModal">Add New</button>
+        <button class="btn-btn-primary" @onclick="OpenNewPatternModal">Add New</button>
         @if (selectedPattern.PatternUUID != Guid.Empty && currentPatternSequenceDetails != null)
         {
             <EditForm Model="currentPatternSequenceDetails">
@@ -85,7 +83,7 @@
                     if (currentPatternSequenceDetails != null)
                     {
                         var localIndex = GetMatrixPosition(i, j);
-                        <button @onclick="((args) => OpenModal(i, j))" style="background-color:@copyPatternSequence[localIndex]" class="btn btn-secondary mr-2 mb-2">&#8203;</button>
+                        <button @onclick="((args) => OpenColorPickerModal(i, j))" style="background-color:@copyPatternSequence[localIndex]" class="btn btn-secondary mr-2 mb-2">&#8203;</button>
                     }
                 }
             </div>

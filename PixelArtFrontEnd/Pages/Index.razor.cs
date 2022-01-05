@@ -37,8 +37,17 @@ namespace PixelArtFrontEnd.Pages
         protected async Task GetPatternDetailsByUUIDAsync()
         {
             patternDetails = await patternService.GetPatternDetailsByUUIDAsync(selectedPattern.PatternUUID);
-            currentPatternSequenceDetails = patternDetails.First();
-            copyPatternSequence = new Dictionary<int, string>(currentPatternSequenceDetails.SequenceDictionary);
+            if (patternDetails.Any())
+            {
+                currentPatternSequenceDetails = patternDetails.First();
+                copyPatternSequence = new Dictionary<int, string>(currentPatternSequenceDetails.SequenceDictionary);
+            }
+            else
+            {
+                currentPatternSequenceDetails = new PatternDetails() { PatternUUID = selectedPattern.PatternUUID, PatternName = availablePatterns.Where(i => i.PatternUUID == selectedPattern.PatternUUID).Single().PatternName, SequenceDescription = JsonSerializer.Serialize(copyPatternSequence), SequenceNumber = 1 };
+                patternDetails = new List<PatternDetails>() { currentPatternSequenceDetails };
+                await this.patternService.AddPatternDetailsAsync(currentPatternSequenceDetails);
+            }
         }
 
         protected void OnSequenceChange(int sequenceNumber)
@@ -53,7 +62,7 @@ namespace PixelArtFrontEnd.Pages
             await patternService.ChangePatternAsync(patternRequest);
         }
 
-        protected async void StopPattern()
+        protected async Task StopPattern()
         {
             await patternService.ClearPattern();
         }
@@ -62,7 +71,7 @@ namespace PixelArtFrontEnd.Pages
         {
             await patternService.UpdatePatternDetailsAsync(patternDetails);
         }
-        protected void OpenModal(int i, int j)
+        protected void OpenColorPickerModal(int i, int j)
         {
             currentI = i;
             currentY = j;
@@ -105,7 +114,7 @@ namespace PixelArtFrontEnd.Pages
             return serialized;
         }
 
-        protected void OpenModal()
+        protected void OpenNewPatternModal()
         {
             showPatternModal = true;
         }
@@ -115,9 +124,14 @@ namespace PixelArtFrontEnd.Pages
             showPatternModal = false;
         }
 
-        protected void HandleValidCreate()
+        protected async Task HandleValidCreate()
         {
-            ;
+            CloseModal();
+            newPattern.PatternUUID = Guid.NewGuid();
+            await Task.Run(() => this.patternService.CreatePatternAsync(newPattern));
+            newPattern = new PatternList();
+            availablePatterns = await Task.Run(() => patternService.GetPatternListAsync());
+
         }
     }
 }

@@ -36,12 +36,22 @@ namespace PixelArtFrontEnd.Services
             return Enumerable.Empty<PatternList>();
         }
 
+        public async Task CreatePatternAsync(PatternList patternList)
+        {
+            var serializedContent = JsonSerializer.Serialize(patternList, serializerOptions);
+            var stringContent = new StringContent(serializedContent, Encoding.Default, mediaType: "application/json");
+            var response = await httpClient.PostAsync("/Neopixels/CreatePattern", stringContent);
+            if (response.IsSuccessStatusCode)
+            {
+                ;
+            }
+        }
+
         public async Task<IEnumerable<PatternDetails>> GetPatternDetailsByUUIDAsync(Guid patternUUID)
         {
             var queryArgs = new Dictionary<string, string>() { { "patternUUID", patternUUID.ToString()} };
             var encodedContent = new FormUrlEncodedContent(queryArgs);
             var encodedURL = $"/Neopixels/GetPatternDetails?{await encodedContent.ReadAsStringAsync()}";
-            //var encodedURL = HttpUtility.UrlEncode(unformattedURL);
             var response = await httpClient.GetAsync(encodedURL);
             if (response.IsSuccessStatusCode)
             {
@@ -50,6 +60,17 @@ namespace PixelArtFrontEnd.Services
                 return patternDetails;
             }
             return Enumerable.Empty<PatternDetails>();
+        }
+
+        public async Task AddPatternDetailsAsync(PatternDetails patternDetails)
+        {
+            var serializedContent = JsonSerializer.Serialize(patternDetails, serializerOptions);
+            var stringContent = new StringContent(serializedContent, Encoding.Default, mediaType: "application/json");
+            var response = await httpClient.PostAsync("/Neopixels/AddPatternDetails", stringContent);
+            if (response.IsSuccessStatusCode)
+            {
+                ;
+            }
         }
 
         public async Task UpdatePatternDetailsAsync(IEnumerable<PatternDetails> patternDetails)
