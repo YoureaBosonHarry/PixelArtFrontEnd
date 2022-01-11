@@ -41,6 +41,7 @@
 
 <div class="row g-3">
     <div class="col">
+        <div class="row p-3 m-3">
         <select class="form-control selectpicker w-auto" @bind="selectedPattern.PatternUUID" @bind:event="oninput" @onchange="GetPatternDetailsByUUIDAsync">
             <option>--select--</option>
             @foreach (var item in availablePatterns)
@@ -48,7 +49,8 @@
                 <option value="@item.PatternUUID">@item.PatternName</option>    
             }
         </select>
-        <button class="btn-btn-primary" @onclick="OpenNewPatternModal">Add New</button>
+        <button class="btn-btn-primary ml-3" @onclick="OpenNewPatternModal">Add New</button>
+        </div>
         @if (selectedPattern.PatternUUID != Guid.Empty && currentPatternSequenceDetails != null)
         {
             <EditForm Model="currentPatternSequenceDetails">
@@ -57,6 +59,7 @@
                     <InputText type="text" class="form-control" id="patternName" @bind-Value="currentPatternSequenceDetails.PatternName" aria-describedby="patternHelp" placeholder="Enter Name"/>
                     <small id="patternHelp" class="form-text text-muted">Enter pattern name to create/update.</small>
                 </div>
+                <div class="row ml-3">
                 <div class="form-group">
                     <label for="sequenceSelect">Select Sequence Number</label>
                     <InputSelect id="sequenceSelect" ValueExpression="@(()=>currentPatternSequenceDetails.SequenceNumber)" Value="@currentPatternSequenceDetails.SequenceNumber" ValueChanged="@((int sequenceValue) => OnSequenceChange(sequenceValue ))">
@@ -66,12 +69,13 @@
                             <option value="@count">@count</option>
                         }
                     </InputSelect>
+                    <button class="btn-btn-primary" @onclick="AddSequence">Add Sequence</button>
+                </div>
                 </div>
             </EditForm>
             <button class="btn-primary" @onclick="StartPattern">Play</button>
             <button class="btn-danger" @onclick="StopPattern">Stop</button>
-            <br/>
-            <button class="btn-btn-primary" @onclick="UpdatePattern">Update</button>
+            
         }
     </div>
     <div class="col">

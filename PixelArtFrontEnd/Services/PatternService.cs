@@ -57,6 +57,7 @@ namespace PixelArtFrontEnd.Services
             {
                 var serializedPatternDetails = await response.Content.ReadAsStreamAsync();
                 var patternDetails = await JsonSerializer.DeserializeAsync<IEnumerable<PatternDetails>>(serializedPatternDetails, serializerOptions);
+                patternDetails = patternDetails.OrderBy(i => i.SequenceNumber);
                 return patternDetails;
             }
             return Enumerable.Empty<PatternDetails>();

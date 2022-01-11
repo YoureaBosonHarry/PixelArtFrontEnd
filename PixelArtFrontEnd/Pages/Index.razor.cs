@@ -56,6 +56,22 @@ namespace PixelArtFrontEnd.Pages
             copyPatternSequence = new Dictionary<int, string>(currentPatternSequenceDetails.SequenceDictionary);
         }
 
+        protected void AddSequence()
+        {
+            var newPatternDetails = new PatternDetails()
+            { 
+                PatternUUID = selectedPattern.PatternUUID, 
+                PatternName = availablePatterns.Where(i => i.PatternUUID == selectedPattern.PatternUUID).Single().PatternName, 
+                SequenceDescription = JsonSerializer.Serialize(copyPatternSequence), 
+                SequenceNumber = currentPatternSequenceDetails.SequenceNumber + 1
+            };
+            var tempPatternDetails = patternDetails.ToList();
+            tempPatternDetails.Add(newPatternDetails);
+            patternDetails = tempPatternDetails;
+            this.patternService.AddPatternDetailsAsync(newPatternDetails);
+
+        }
+
         protected async Task StartPattern()
         {
             var patternRequest = new PatternChangeRequest() { PatternUUID = currentPatternSequenceDetails.PatternUUID };
@@ -78,7 +94,7 @@ namespace PixelArtFrontEnd.Pages
             isOpened = true;
         }
 
-        protected void ClosedEvent(string value)
+        protected async Task ClosedEvent(string value)
         {
             color = value;
             var trueIndex = GetMatrixPosition(currentI, currentY);
@@ -89,6 +105,7 @@ namespace PixelArtFrontEnd.Pages
                 currentPatternSequenceDetails.SequenceDescription = newStringSequence;
                 patternDetails.Where(i => i.SequenceNumber == currentPatternSequenceDetails.SequenceNumber).First().SequenceDescription = newStringSequence;
             }
+            await Task.Run(() => patternService.UpdatePatternDetailsAsync(patternDetails));
             isOpened = false;
         }
 
