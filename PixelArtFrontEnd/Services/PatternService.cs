@@ -47,6 +47,18 @@ namespace PixelArtFrontEnd.Services
             }
         }
 
+        public async Task DeletePatternAsync(Guid patternUUID)
+        {
+            var queryArgs = new Dictionary<string, string>() { { "patternUUID", patternUUID.ToString() } };
+            var encodedContent = new FormUrlEncodedContent(queryArgs);
+            var encodedURL = $"/Neopixels/DeletePattern?{await encodedContent.ReadAsStringAsync()}";
+            var response = await httpClient.DeleteAsync(encodedURL);
+            if (response.IsSuccessStatusCode)
+            {
+                ;
+            }
+        }
+
         public async Task<IEnumerable<PatternDetails>> GetPatternDetailsByUUIDAsync(Guid patternUUID)
         {
             var queryArgs = new Dictionary<string, string>() { { "patternUUID", patternUUID.ToString()} };
@@ -94,6 +106,11 @@ namespace PixelArtFrontEnd.Services
             {
                 ;
             }
+        }
+
+        public async Task DeletePatternAsync()
+        {
+            ;
         }
 
         public async Task ClearPattern()

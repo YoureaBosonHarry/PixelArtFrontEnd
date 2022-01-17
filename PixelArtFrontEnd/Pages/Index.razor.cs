@@ -24,7 +24,11 @@ namespace PixelArtFrontEnd.Pages
         protected static int currentI = 0;
         protected static int currentY = 0;
         protected PatternList newPattern = new PatternList();
+        protected PatternList deletePattern = new PatternList();
         protected bool showPatternModal = false;
+        protected bool showDeleteButton = false;
+        protected bool showDeleteModal = false;
+        protected string deleteTextColor = "black";
         protected override async Task OnInitializedAsync()
         {
             availablePatterns = await patternService.GetPatternListAsync();
@@ -37,6 +41,7 @@ namespace PixelArtFrontEnd.Pages
         protected async Task GetPatternDetailsByUUIDAsync()
         {
             patternDetails = await patternService.GetPatternDetailsByUUIDAsync(selectedPattern.PatternUUID);
+            showDeleteButton = true;
             if (patternDetails.Any())
             {
                 currentPatternSequenceDetails = patternDetails.First();
@@ -136,9 +141,20 @@ namespace PixelArtFrontEnd.Pages
             showPatternModal = true;
         }
 
+        protected void OpenDeletePatternModal()
+        {
+            deletePattern = selectedPattern;
+            showDeleteModal = true;
+        }
+
         protected void CloseModal()
         {
             showPatternModal = false;
+        }
+
+        protected void CloseDeleteModal()
+        {
+            showDeleteModal = false;
         }
 
         protected async Task HandleValidCreate()
@@ -149,6 +165,23 @@ namespace PixelArtFrontEnd.Pages
             newPattern = new PatternList();
             availablePatterns = await Task.Run(() => patternService.GetPatternListAsync());
 
+        }
+
+        protected async Task HandleValidDelete()
+        {
+            if (deletePattern.PatternName.ToLower() == currentPatternSequenceDetails.PatternName.ToLower())
+            {
+                await Task.Run(() => patternService.DeletePatternAsync(deletePattern.PatternUUID));
+                availablePatterns = await Task.Run(() => patternService.GetPatternListAsync());
+                selectedPattern = availablePatterns.Last();
+                await Task.Run(() => GetPatternDetailsByUUIDAsync());
+                CloseDeleteModal();
+                deletePattern = new PatternList();
+            }
+            else
+            {
+                deleteTextColor = "red";
+            }
         }
     }
 }

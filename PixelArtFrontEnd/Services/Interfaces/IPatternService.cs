@@ -10,6 +10,7 @@ namespace PixelArtFrontEnd.Services.Interfaces
     {
         Task<IEnumerable<PatternList>> GetPatternListAsync();
         Task CreatePatternAsync(PatternList patternList);
+        Task DeletePatternAsync(Guid patternUUID);
         Task<IEnumerable<PatternDetails>> GetPatternDetailsByUUIDAsync(Guid patternUUID);
         Task AddPatternDetailsAsync(PatternDetails patternDetails);
         Task UpdatePatternDetailsAsync(IEnumerable<PatternDetails> patternDetails);
